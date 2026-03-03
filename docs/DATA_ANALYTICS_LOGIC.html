@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diploma Data Analysis Dashboard — Data Analytics Logic</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.55;
+      color: #1e293b;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+    h1 {
+      font-size: 1.85rem;
+      color: #0f172a;
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 0.5rem;
+      margin-top: 0;
+    }
+    h2 {
+      font-size: 1.3rem;
+      color: #1e40af;
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+    }
+    h3 { font-size: 1.08rem; color: #334155; margin-top: 1.25rem; }
+    p { margin: 0.5rem 0; }
+    ul, ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+    li { margin: 0.3rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background: #1e40af; color: #fff; font-weight: 600; }
+    tr:nth-child(even) { background: #f8fafc; }
+    pre, code {
+      background: #e2e8f0;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-family: 'Consolas', monospace;
+    }
+    pre { padding: 1rem; overflow-x: auto; white-space: pre-wrap; }
+    .flow {
+      background: #f1f5f9;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      margin: 1rem 0;
+    }
+    .meta { font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem; }
+    .note { font-size: 0.9rem; color: #475569; margin-top: 0.5rem; }
+    @media print {
+      body { background: #fff; padding: 1rem; }
+      h2 { page-break-after: avoid; }
+      table, pre, .flow { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Diploma Data Analysis Dashboard</h1>
+  <p class="meta">Data Analytics Logic — Presentation document</p>
+
+  <h2>1. Overview</h2>
+  <p>The application accepts three Excel result files (CO1K, CO3K, CO5K), parses multi-row headers and student marks, reads the <strong>AJ column</strong> (result column) for pass/fail and ATKT, computes subject averages and top 10, and visualizes results with charts and AI-generated insights. No database is used; data is held in React state.</p>
+
+  <h2>2. Data Flow</h2>
+  <div class="flow">Excel (CO1K, CO3K, CO5K) → Parse (xlsx → JSON with resultStatus from AJ column) → Analyze (pass/fail from AJ, subject averages, top 10, ATKT, insights) → Dashboard (cards, pie, line, per-file bar charts)</div>
+  <table>
+    <tr><th>Stage</th><th>Description</th></tr>
+    <tr><td>Upload</td><td>User selects Excel files; client sends to <code>/api/analyze</code>.</td></tr>
+    <tr><td>Parse</td><td>Server uses xlsx to detect headers, extract student rows, subject marks, and the result column (AJ); returns JSON including <code>resultStatus</code>.</td></tr>
+    <tr><td>Analyze</td><td>Client classifies pass/fail and ATKT from <code>resultStatus</code>; computes subject averages, top 10, and insights.</td></tr>
+    <tr><td>Display</td><td>Overview cards, pie chart, line chart, per-file bar charts, and AI insights.</td></tr>
+  </table>
+
+  <h2>3. Excel Parsing Logic</h2>
+  <h3>Expected structure</h3>
+  <ul>
+    <li><strong>Abbreviation row</strong> (e.g. row 4): Subject codes (OSY, STE, …) repeated per sub-column.</li>
+    <li><strong>Passing Head row</strong> (e.g. row 5): SA-TH, FA-TH, TOTAL, SLA, SA-PR, FA-PR, TOTAL, …</li>
+    <li><strong>Header row</strong> (e.g. row 6): Seat Number, Enrollment Number, Student Name, then max marks.</li>
+    <li><strong>Data rows</strong>: One row per student.</li>
+  </ul>
+  <h3>Key rules</h3>
+  <ul>
+    <li>Header row is detected by searching for "seat", "enrollment", or "student name".</li>
+    <li>Columns are grouped by subject code from the abbreviation row; only columns with passing-head <strong>"TOTAL"</strong> are used per subject (avoids double-counting).</li>
+    <li><strong>Result column (AJ):</strong> Detected by header keywords ("result", "class", "grade", "division", "status", "outcome") or column index 35 (Excel column AJ). Value stored as <code>resultStatus</code> (e.g. "First Class", "Fail", "A.T.K.T.").</li>
+    <li>Grand total column is detected for overall student total; values rounded to 2 decimal places.</li>
+  </ul>
+
+  <h2>4. Analysis Logic (Per Semester)</h2>
+  <table>
+    <tr><th>Metric</th><th>Logic</th></tr>
+    <tr><td>Pass / Fail</td><td>From AJ column (<code>resultStatus</code>): "Fail" → fail; "A.T.K.T."/ATKT → ATKT (counted as failed); any other value (e.g. First Class, First Class with Distinction, First Class Conditional) → pass.</td></tr>
+    <tr><td>Subject averages</td><td>Average marks per subject across students. "TOTAL" excluded from subject-wise bar charts.</td></tr>
+    <tr><td>Top 10</td><td>Students sorted by total marks; top 10 shown with rank, name, total.</td></tr>
+    <tr><td>ATKT</td><td>Students whose AJ column value is "A.T.K.T." or "ATKT". Counted as failed; listed in ATKT section per semester.</td></tr>
+  </table>
+
+  <h2>5. AI Insights</h2>
+  <p>Rule-based insights: pass rate comparison between semesters, ATKT count per semester (from result column), enrollment comparison, and best subject (highest average) per semester.</p>
+
+  <h2>6. Dashboard Visualizations</h2>
+  <table>
+    <tr><th>Component</th><th>Meaning</th></tr>
+    <tr><td>Overview cards</td><td>Total students, Pass %, Fail % (aggregated).</td></tr>
+    <tr><td>Pass vs Fail (pie)</td><td>Proportion passed vs failed.</td></tr>
+    <tr><td>Line chart</td><td>Pass % (left Y-axis, 0–100) and Total students (right Y-axis) across CO1K, CO3K, CO5K.</td></tr>
+    <tr><td>Per-file bar chart</td><td>Subject-wise average marks for that file only (e.g. "CO1K — Subject-wise average marks").</td></tr>
+    <tr><td>Top 10 / ATKT</td><td>Per-semester tables; ATKT from result column.</td></tr>
+  </table>
+
+  <h2>7. Summary</h2>
+  <p>The pipeline parses Excel with correct header and TOTAL-only subject columns, reads the <strong>AJ column</strong> for pass/fail and ATKT (no percentage logic), computes subject averages and top 10, aggregates for overview and pie chart, generates comparative insights, and renders one subject-wise bar chart per file plus line chart and tables.</p>
+
+  <p class="meta" style="margin-top: 2rem;">Diploma Data Analysis Dashboard. Open in browser and use Print → Save as PDF for a presentation-ready document.</p>
+</body>
+</html>
