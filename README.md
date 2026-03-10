@@ -1,82 +1,38 @@
-# Diploma Data Analysis Dashboard
+# Diploma Result Analytics Platform
 
-A Next.js 14 (App Router) application for uploading and analyzing diploma result Excel files (CO1K, CO3K, CO5K).
+A full-stack web app for colleges to upload **MSBTE-style result workbooks** and view analytics dashboards. Built with **Next.js 14 (App Router)**, React, Tailwind CSS, Recharts, and SheetJS (xlsx). No database — data is kept in memory/state.
 
 ## Features
 
-- **Upload** up to three Excel files (CO1K, CO3K, CO5K) via the Upload page
-- **Parse** Excel data into JSON using the `xlsx` package (handles multi-row headers)
-- **Analysis** per semester:
-  - Total students, pass/fail counts and percentages
-  - Subject-wise average marks
-  - Top 10 students by total marks
-  - ATKT list (students with 1–2 failed subjects)
-- **Dashboard** with:
-  - Overview cards (Total Students, Pass %, Fail %)
-  - Pie chart (Pass vs Fail)
-  - Bar chart (Subject averages)
-  - Line chart (CO1K vs CO3K vs CO5K comparison)
-  - AI Insights (e.g. “CO3K has 12% lower pass rate compared to CO1K”)
-- **Tech**: Tailwind CSS, Recharts, no database (data in React state)
-- **UX**: Loading state, error handling, file format validation (.xlsx, .xls)
+- **Upload**: Institution, Branch, Academic Year, Session (Winter/Summer), drag-and-drop .xlsx upload with sheet detection preview (CO1K/CO3K/CO5K for Winter; CO2K/CO4K/CO6K for Summer).
+- **Dashboard**: Overview cards (Total Students, Average %, Pass %, Distinction count), Pass vs Fail pie, subject-wise bar chart, semester line chart, marks histogram, auto-generated insights, top 10 leaderboard.
+- **Comparison**: Compare Year A vs Year B (e.g. 2024 Winter CO3K vs 2025 Winter CO3K) with pass %, average marks, distinction count, subject averages and comparison insights.
+- **Student Search**: Search by name or enrollment number; view performance across semesters.
 
-## Project structure
+## Tech Stack
 
-```
-/docs
-  DATA_ANALYTICS_LOGIC.md   # Full analytics logic (presentation-ready)
-  DATA_ANALYTICS_LOGIC.html # Same content, open in browser → Print to PDF
-/app
-  layout.jsx       # Root layout with header and DataProvider
-  page.jsx         # Home page
-  globals.css      # Global styles
-  /upload
-    page.jsx       # File upload form
-  /dashboard
-    page.jsx       # Dashboard with cards, charts, insights
-  /api/analyze
-    route.js       # POST: parse Excel files, return JSON
-/lib
-  parseExcel.js    # Excel parsing (header detection, subject grouping)
-  analyzeData.js   # Analysis and AI insights
-/components
-  SummaryCards.jsx # Overview cards
-  Charts.jsx       # Pie, Bar, Line charts (Recharts)
-/context
-  DataContext.jsx  # Global state for parsed semester data
+- Next.js 14, React, Tailwind CSS, Recharts, xlsx (SheetJS)
+
+## Run
+
+```bash
+npm install
+npm run dev
 ```
 
-## Getting started
+Open [http://localhost:3000](http://localhost:3000). Use **Upload** to add workbooks, then **Dashboard**, **Comparison**, and **Student Search** as needed.
 
-1. **Install dependencies**
+## Excel Format
 
-   ```bash
-   npm install
-   ```
+- First 5 rows: header/metadata.
+- Row 6: column headers (e.g. Seat Number, Enrollment Number, Student Name, subject totals, Grand Total, Percentage, Class, Rank).
+- Data from row 7 onward.
 
-2. **Run development server**
+Sheet names must match: **Winter** → CO1K, CO3K, CO5K; **Summer** → CO2K, CO4K, CO6K.
 
-   ```bash
-   npm run dev
-   ```
+## Folder Structure
 
-   Open [http://localhost:3000](http://localhost:3000).
-
-3. **Build for production**
-
-   ```bash
-   npm run build
-   npm start
-   ```
-
-## Excel format
-
-- First three columns: **Seat Number**, **Enrollment Number**, **Student Name**
-- Header row is auto-detected (row containing “Seat”, “Enrollment”, or “Student Name”)
-- Subject abbreviations (e.g. OSY, STE, ENDS) are read from the row above the header; multiple columns per subject are summed into one total per subject
-- A column with header “total” (or “grand total”) is used as grand total; otherwise the sum of subject totals is used
-- Pass/fail is computed using a **60%** threshold per subject (of the max marks inferred from the data)
-
-## License
-
-MIT
+- `app/` — pages: `/`, `/upload`, `/dashboard`, `/comparison`, `/student-search`
+- `components/` — UploadForm, SummaryCards, Charts, Leaderboard, Sidebar
+- `lib/` — parseExcel.js, analyzeData.js, insightsGenerator.js
+- `context/` — DataContext (in-memory datasets)

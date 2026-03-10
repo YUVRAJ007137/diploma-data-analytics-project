@@ -1,29 +1,21 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="mx-auto max-w-2xl text-center">
-      <h1 className="text-3xl font-bold text-slate-900 dark:text-white sm:text-4xl">
-        Diploma Data Analysis Dashboard
-      </h1>
-      <p className="mt-4 text-slate-600 dark:text-slate-400">
-        Upload CO1K, CO3K, and CO5K Excel result files to view semester-wise analysis,
-        pass/fail statistics, subject averages, top performers, and ATKT lists.
+    <section className="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      <h2 className="text-3xl font-bold text-brand">Diploma Result Analytics Platform</h2>
+      <p className="mt-3 text-slate-600">
+        Upload MSBTE-style workbooks, generate semester-wise insights, and compare branch performance across academic years.
       </p>
-      <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-        <Link
-          href="/upload"
-          className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
-        >
-          Upload files
+
+      <div className="mt-8 grid gap-3 sm:grid-cols-2">
+        <Link href="/upload" className="rounded-lg bg-blue-600 px-4 py-3 text-center font-semibold text-white">
+          Start Upload
         </Link>
-        <Link
-          href="/dashboard"
-          className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-        >
-          Go to dashboard
+        <Link href="/dashboard" className="rounded-lg border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700">
+          Open Dashboard
         </Link>
       </div>
-    </div>
+    </section>
   );
 }

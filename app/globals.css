@@ -1,35 +1,15 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --foreground: #0f172a;
-  --background: #f8fafc;
-  --card: #ffffff;
-  --border: #e2e8f0;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground: #f1f5f9;
-    --background: #0f172a;
-    --card: #1e293b;
-    --border: #334155;
-  }
+  color-scheme: light;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
-/* Recharts container responsiveness */
-.recharts-responsive-container {
-  width: 100% !important;
+.card {
+  @apply rounded-xl border border-slate-200 bg-white p-4 shadow-sm;
 }

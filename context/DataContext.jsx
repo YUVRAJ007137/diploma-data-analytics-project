@@ -1,55 +1,59 @@
-"use client";
+﻿"use client";
 
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
-/**
- * Global state for parsed semester data (CO1K, CO3K, CO5K).
- * Used by Upload page to store parsed Excel data and by Dashboard to display analysis.
- */
 const DataContext = createContext(null);
 
 export function DataProvider({ children }) {
-  const [semesterData, setSemesterDataState] = useState({
-    CO1K: null,
-    CO3K: null,
-    CO5K: null,
-  });
+  const [datasets, setDatasets] = useState([]);
 
-  const setSemesterData = useCallback((key, data) => {
-    setSemesterDataState((prev) => ({ ...prev, [key]: data }));
-  }, []);
+  const addDataset = (incomingDataset) => {
+    setDatasets((prev) => {
+      const next = prev.filter(
+        (item) =>
+          !(
+            item.year === incomingDataset.year &&
+            item.session === incomingDataset.session &&
+            item.branch === incomingDataset.branch &&
+            item.institutionName === incomingDataset.institutionName
+          )
+      );
 
-  const setAllSemesterData = useCallback((data) => {
-    setSemesterDataState((prev) => ({ ...prev, ...data }));
-  }, []);
+      return [...next, incomingDataset].sort((a, b) => `${a.year}${a.session}`.localeCompare(`${b.year}${b.session}`));
+    });
+  };
 
-  const clearData = useCallback(() => {
-    setSemesterDataState({ CO1K: null, CO3K: null, CO5K: null });
-  }, []);
+  const allStudents = useMemo(() => {
+    return datasets.flatMap((dataset) => {
+      return Object.entries(dataset.semesters || {}).flatMap(([semester, students]) =>
+        students.map((student) => ({
+          ...student,
+          semester,
+          year: dataset.year,
+          branch: dataset.branch,
+          session: dataset.session,
+          institutionName: dataset.institutionName
+        }))
+      );
+    });
+  }, [datasets]);
 
-  const hasAnyData = Boolean(
-    semesterData.CO1K?.students?.length ||
-      semesterData.CO3K?.students?.length ||
-      semesterData.CO5K?.students?.length
+  const value = useMemo(
+    () => ({
+      datasets,
+      addDataset,
+      allStudents
+    }),
+    [datasets, allStudents]
   );
 
-  return (
-    <DataContext.Provider
-      value={{
-        semesterData,
-        setSemesterData,
-        setAllSemesterData,
-        clearData,
-        hasAnyData,
-      }}
-    >
-      {children}
-    </DataContext.Provider>
-  );
+  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }
 
-export function useData() {
-  const ctx = useContext(DataContext);
-  if (!ctx) throw new Error("useData must be used within DataProvider");
-  return ctx;
+export function useDataContext() {
+  const context = useContext(DataContext);
+  if (!context) {
+    throw new Error("useDataContext must be used within DataProvider");
+  }
+  return context;
 }
