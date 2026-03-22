@@ -18,6 +18,8 @@ import {
   getMarksDistribution,
   getTopStudents
 } from "@/lib/analyzeData";
+import { getBacklogSummary } from "@/lib/analyzeData";
+import BacklogDashboard from "@/components/BacklogDashboard";
 import { generateInsights } from "@/lib/insightsGenerator";
 
 export default function DashboardPage() {
@@ -177,6 +179,8 @@ export default function DashboardPage() {
           )}
         </ul>
       </div>
+
+      <BacklogDashboard dataset={effectiveDataset} />
 
       <Leaderboard topStudents={topStudents} />
     </div>
