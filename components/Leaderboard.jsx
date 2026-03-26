@@ -14,9 +14,9 @@ export default function Leaderboard({ topStudents, maxItems = 10 }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 bg-slate-50 px-4 py-3">
-        <h3 className="font-semibold text-slate-800">Top {list.length} by Percentage</h3>
+    <div className="overflow-hidden rounded-xl shadow-sm">
+      <div className="px-4 py-3 grad-indigo">
+        <h3 className="font-semibold text-white">Top {list.length} by Percentage</h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">

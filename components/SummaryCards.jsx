@@ -7,10 +7,10 @@ export default function SummaryCards({ overview }) {
   if (!overview) return null;
 
   const cards = [
-    { label: "Total Students", value: overview.totalStudents, color: "bg-slate-100 text-slate-800 border-slate-200" },
-    { label: "Average Percentage", value: `${overview.averagePercentage}%`, color: "bg-blue-50 text-blue-800 border-blue-200" },
-    { label: "Pass Percentage", value: `${overview.passPercentage}%`, color: "bg-green-50 text-green-800 border-green-200" },
-    { label: "Distinction Count", value: overview.distinctionCount, color: "bg-amber-50 text-amber-800 border-amber-200" }
+    { label: "Total Students", value: overview.totalStudents, color: "bg-white/60 text-slate-900 border-slate-200" },
+    { label: "Average Percentage", value: `${overview.averagePercentage}%`, color: "grad-violet" },
+    { label: "Pass Percentage", value: `${overview.passPercentage}%`, color: "grad-emerald" },
+    { label: "Distinction Count", value: overview.distinctionCount, color: "grad-amber" }
   ];
 
   return (
@@ -18,10 +18,11 @@ export default function SummaryCards({ overview }) {
       {cards.map((card) => (
         <div
           key={card.label}
-          className={`rounded-xl border p-4 ${card.color}`}
+          className={`rounded-xl p-4 ${card.color} shadow-sm`}
+          style={{ minHeight: 96 }}
         >
           <p className="text-sm font-medium opacity-90">{card.label}</p>
-          <p className="mt-1 text-2xl font-bold">{card.value}</p>
+          <p className={`mt-1 text-2xl font-bold ${card.color.includes('grad') ? 'text-white' : 'text-slate-900'}`}>{card.value}</p>
         </div>
       ))}
     </div>

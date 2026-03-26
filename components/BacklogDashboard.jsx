@@ -1,8 +1,13 @@
+
 "use client";
 
 import { useMemo, useState } from "react";
 import { getBacklogSummary, getStudentBacklogHistory } from "@/lib/analyzeData";
 import StudentBacklogModal from "./StudentBacklogModal";
+import BacklogSummaryTiles from "./BacklogSummaryTiles";
+import BacklogDistribution from "./BacklogDistribution";
+import TopBacklogStudents from "./TopBacklogStudents";
+import BacklogPreview from "./BacklogPreview";
 
 export default function BacklogDashboard({ dataset, topN = 10 }) {
   const summary = useMemo(() => (dataset ? getBacklogSummary(dataset, {}, topN) : null), [dataset, topN]);
@@ -12,88 +17,31 @@ export default function BacklogDashboard({ dataset, topN = 10 }) {
   if (!dataset) return null;
 
   return (
-    <div className="card">
-      <h3 className="mb-4 text-lg font-semibold text-slate-800">Backlog Summary</h3>
-
-      {summary ? (
-        <div className="grid gap-4 sm:grid-cols-4">
-          <div className="rounded-lg border border-slate-200 bg-white p-4 text-center">
-            <div className="text-sm text-slate-500">Total students</div>
-            <div className="mt-2 text-xl font-semibold text-slate-900">{summary.totalStudents}</div>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4 text-center">
-            <div className="text-sm text-slate-500">No backs</div>
-            <div className="mt-2 text-xl font-semibold text-slate-900">{summary.studentsWithNoBacks}</div>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4 text-center">
-            <div className="text-sm text-slate-500">Students with backs</div>
-            <div className="mt-2 text-xl font-semibold text-slate-900">{summary.studentsWithAnyBack}</div>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4 text-center">
-            <div className="text-sm text-slate-500">Average backs</div>
-            <div className="mt-2 text-xl font-semibold text-slate-900">{summary.averageBacks}</div>
-          </div>
+    <div className="glass-card">
+      <div className="glass-header">
+        <div className="rounded-full bg-gradient-to-br from-indigo-500 to-sky-400 p-2 text-white shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 2a1 1 0 00-1 1v3H5a1 1 0 000 2h3v3a1 1 0 102 0V8h3a1 1 0 100-2H11V3a1 1 0 00-1-1z" />
+          </svg>
         </div>
-      ) : (
-        <p className="text-sm text-slate-500">No data available.</p>
-      )}
-
-      {/* Distribution */}
-      {summary && (
-        <div className="mt-6">
-          <h4 className="mb-2 text-sm font-semibold text-slate-700">Backlog distribution</h4>
-          <div className="flex gap-3 text-sm">
-            <div className="rounded-md bg-slate-100 px-3 py-1">0: {summary.distribution["0"]}</div>
-            <div className="rounded-md bg-slate-100 px-3 py-1">1: {summary.distribution["1"]}</div>
-            <div className="rounded-md bg-slate-100 px-3 py-1">2: {summary.distribution["2"]}</div>
-            <div className="rounded-md bg-slate-100 px-3 py-1">3+: {summary.distribution["3+"]}</div>
-          </div>
+        <div>
+          <h3 className="text-lg font-semibold text-slate-800">Backlog Summary</h3>
+          <div className="muted">Quick overview of students with backlog (failures)</div>
         </div>
-      )}
+      </div>
 
-      {/* Top offenders */}
-      {summary && summary.topBacklogStudents && summary.topBacklogStudents.length > 0 && (
-        <div className="mt-6">
-          <h4 className="mb-2 text-sm font-semibold text-slate-700">Top backlog students</h4>
-          <ol className="list-decimal list-inside space-y-2">
-            {summary.topBacklogStudents.map((s) => (
-              <li key={s.key} className="flex items-start justify-between gap-4">
-                <button
-                  type="button"
-                  onClick={() => setSelectedStudent(s)}
-                  className="text-left"
-                >
-                  <div className="text-sm font-medium text-slate-800">{s.studentName || s.enrollmentNumber || s.key}</div>
-                  <div className="text-xs text-slate-500">{s.enrollmentNumber ? `EN: ${s.enrollmentNumber}` : s.seatNumber ? `Seat: ${s.seatNumber}` : null}</div>
-                </button>
-                <div className="text-sm font-semibold text-rose-600">{s.totalBacks} backs</div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
+      <div className="mt-6">
+        <BacklogSummaryTiles summary={summary} />
+      </div>
 
-      {/* Small history preview */}
-      {history && history.length > 0 && (
-        <div className="mt-6">
-          <h4 className="mb-2 text-sm font-semibold text-slate-700">Recent student backlog preview</h4>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {history.slice(0, 6).map((s) => (
-              <div key={s.key} className="rounded-md border border-slate-100 bg-slate-50 p-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-slate-800">{s.studentName || s.enrollmentNumber || s.key}</div>
-                  <div className="text-xs text-slate-500">Total: {s.totalBacks}</div>
-                </div>
-                <div className="mt-2 text-xs text-slate-600">
-                  {s.semesterBacks.map((b) => (
-                    <div key={b.semester}>{b.semester}: {b.backCount}</div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <BacklogDistribution summary={summary} />
+
+      <TopBacklogStudents
+        students={summary?.topBacklogStudents}
+        onSelectStudent={setSelectedStudent}
+      />
+
+      <BacklogPreview history={history} />
 
       <StudentBacklogModal
         student={selectedStudent}
