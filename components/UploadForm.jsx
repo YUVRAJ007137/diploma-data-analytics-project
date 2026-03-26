@@ -122,7 +122,7 @@ export default function UploadForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="institution" className="mb-1 block text-sm font-medium text-slate-700">
+          <label htmlFor="institution" className="mb-2 block text-sm font-medium text-slate-300">
             Institution Name
           </label>
           <input
@@ -130,12 +130,11 @@ export default function UploadForm() {
             type="text"
             value={institutionName}
             onChange={(e) => setInstitutionName(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="e.g. ABC Polytechnic"
           />
         </div>
         <div>
-          <label htmlFor="branch" className="mb-1 block text-sm font-medium text-slate-700">
+          <label htmlFor="branch" className="mb-2 block text-sm font-medium text-slate-300">
             Branch
           </label>
           <input
@@ -143,7 +142,6 @@ export default function UploadForm() {
             type="text"
             value={branch}
             onChange={(e) => setBranch(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="e.g. Computer Engineering"
           />
         </div>
@@ -151,7 +149,7 @@ export default function UploadForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="year" className="mb-1 block text-sm font-medium text-slate-700">
+          <label htmlFor="year" className="mb-2 block text-sm font-medium text-slate-300">
             Academic Year
           </label>
           <input
@@ -159,71 +157,99 @@ export default function UploadForm() {
             type="text"
             value={academicYear}
             onChange={(e) => setAcademicYear(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="e.g. 2025"
           />
         </div>
         <div>
-          <label htmlFor="session" className="mb-1 block text-sm font-medium text-slate-700">
+          <label htmlFor="session" className="mb-2 block text-sm font-medium text-slate-300">
             Session
           </label>
           <select
             id="session"
             value={session}
             onChange={(e) => setSession(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             <option value="Winter">Winter</option>
             <option value="Summer">Summer</option>
           </select>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-slate-500">
             Winter: CO1K, CO3K, CO5K — Summer: CO2K, CO4K, CO6K
           </p>
         </div>
       </div>
 
+      {/* Drag & Drop Zone */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">Upload Workbook (.xlsx)</label>
+        <label className="mb-2 block text-sm font-medium text-slate-300">Upload Workbook (.xlsx)</label>
         <div
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
-          className={`rounded-xl border-2 border-dashed p-6 text-center transition ${
-            dragActive ? "border-blue-500 bg-blue-50" : "border-slate-300 bg-slate-50"
+          className={`relative rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-300 cursor-pointer ${
+            dragActive
+              ? "border-indigo-500/60 bg-indigo-500/[0.06] shadow-[0_0_30px_rgba(99,102,241,0.1)]"
+              : "border-white/[0.08] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.03]"
           }`}
         >
           <input
             type="file"
             accept={ACCEPT}
             onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
-            className="hidden"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             id="workbook-file"
+            style={{ background: 'transparent', border: 'none' }}
           />
-          <label htmlFor="workbook-file" className="cursor-pointer">
+          <div className="flex flex-col items-center gap-3">
+            <div className={`h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+              dragActive ? 'bg-indigo-500/20 scale-110' : 'bg-white/[0.04]'
+            }`}>
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transition-colors duration-300 ${dragActive ? 'text-indigo-400' : 'text-slate-500'}`} viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
             {file ? (
-              <span className="font-medium text-slate-700">{file.name}</span>
+              <div>
+                <span className="font-semibold text-indigo-300">{file.name}</span>
+                <p className="mt-1 text-xs text-slate-500">Click or drag to replace</p>
+              </div>
             ) : (
-              <span className="text-slate-600">Drag & drop or click to select .xlsx file</span>
+              <div>
+                <span className="font-medium text-slate-300">Drag & drop or click to select</span>
+                <p className="mt-1 text-xs text-slate-500">.xlsx files only</p>
+              </div>
             )}
-          </label>
+          </div>
         </div>
       </div>
 
       {/* Sheet detection preview */}
       {detectedSheets && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h3 className="mb-3 text-sm font-semibold text-slate-800">Detected Sheets</h3>
+        <div className="glass-tile animate-slide-up">
+          <h3 className="mb-3 text-sm font-semibold text-white flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+            </svg>
+            Detected Sheets
+          </h3>
           <ul className="space-y-2">
             {detectedSheets.expected?.map((name) => {
               const found = detectedSheets.found?.includes(name);
               return (
-                <li key={name} className="flex items-center gap-2 text-sm">
+                <li key={name} className="flex items-center gap-3 text-sm">
                   {found ? (
-                    <span className="text-green-600" aria-hidden>✔</span>
+                    <span className="h-5 w-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </span>
                   ) : (
-                    <span className="text-red-600" aria-hidden>✘</span>
+                    <span className="h-5 w-5 rounded-full bg-rose-500/20 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-rose-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </span>
                   )}
-                  <span className={found ? "text-slate-800" : "text-slate-500"}>{name}</span>
+                  <span className={found ? "text-white" : "text-slate-500"}>{name}</span>
                 </li>
               );
             })}
@@ -231,24 +257,47 @@ export default function UploadForm() {
         </div>
       )}
 
+      {/* Error / Success alerts */}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <div className="flex items-center gap-3 rounded-xl border border-rose-500/20 bg-rose-500/[0.08] px-4 py-3 text-sm text-rose-300 animate-slide-up">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-rose-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
           {error}
         </div>
       )}
       {success && (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.08] px-4 py-3 text-sm text-emerald-300 animate-slide-up">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
           {success}
         </div>
       )}
 
-      <div className="flex gap-3">
+      {/* Buttons */}
+      <div className="flex gap-3 pt-2">
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+          className="btn-glass btn-primary-glass disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Parsing…" : "Upload & Parse"}
+          {loading ? (
+            <>
+              <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Parsing…
+            </>
+          ) : (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+              Upload & Parse
+            </>
+          )}
         </button>
         <button
           type="button"
@@ -258,7 +307,7 @@ export default function UploadForm() {
             setSuccess("");
             setDetectedSheets(null);
           }}
-          className="rounded-lg border border-slate-300 px-4 py-2.5 font-medium text-slate-700 hover:bg-slate-100"
+          className="btn-glass btn-secondary-glass"
         >
           Clear
         </button>

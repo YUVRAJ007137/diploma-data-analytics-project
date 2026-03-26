@@ -19,14 +19,14 @@ export default function BacklogDashboard({ dataset, topN = 10 }) {
   return (
     <div className="glass-card">
       <div className="glass-header">
-        <div className="rounded-full bg-gradient-to-br from-indigo-500 to-sky-400 p-2 text-white shadow-md">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M9 2a1 1 0 00-1 1v3H5a1 1 0 000 2h3v3a1 1 0 102 0V8h3a1 1 0 100-2H11V3a1 1 0 00-1-1z" />
+        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500/30 to-cyan-500/20 flex items-center justify-center shadow-lg shadow-indigo-500/10">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-slate-800">Backlog Summary</h3>
-          <div className="muted">Quick overview of students with backlog (failures)</div>
+          <h3 className="text-lg font-semibold text-white">Backlog Summary</h3>
+          <div className="text-sm text-slate-400">Quick overview of students with backlog (failures)</div>
         </div>
       </div>
 
