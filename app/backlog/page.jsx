@@ -12,12 +12,74 @@ import BacklogPreview from "@/components/BacklogPreview";
 export default function BacklogPage() {
   const { datasets } = useDataContext();
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState("");
 
-  // Use the first dataset (most recent) for backlog analysis
-  const dataset = datasets && datasets.length > 0 ? datasets[datasets.length - 1] : null;
+  // Get unique years and branches from datasets
+  const years = useMemo(() => {
+    const uniqueYears = [...new Set(datasets.map((d) => d.year))].sort((a, b) => b - a);
+    return uniqueYears;
+  }, [datasets]);
 
-  const summary = useMemo(() => (dataset ? getBacklogSummary(dataset, {}, 10) : null), [dataset]);
-  const history = useMemo(() => (dataset ? getStudentBacklogHistory(dataset) : []), [dataset]);
+  const branches = useMemo(() => {
+    const filtered = selectedYear
+      ? datasets.filter((d) => d.year === parseInt(selectedYear))
+      : datasets;
+    const uniqueBranches = [...new Set(filtered.map((d) => d.branch))].sort();
+    return uniqueBranches;
+  }, [datasets, selectedYear]);
+
+  // Filter dataset based on selected filters
+  const dataset = useMemo(() => {
+    if (datasets.length === 0) return null;
+
+    let filtered = [...datasets];
+
+    if (selectedYear) {
+      filtered = filtered.filter((d) => d.year === parseInt(selectedYear));
+    }
+
+    if (selectedBranch) {
+      filtered = filtered.filter((d) => d.branch === selectedBranch);
+    }
+
+    // If filters are applied, return the first matching dataset
+    // Otherwise return the most recent dataset
+    return filtered.length > 0 ? filtered[filtered.length - 1] : null;
+  }, [datasets, selectedYear, selectedBranch]);
+
+  // Get unique semesters from selected dataset
+  const semesters = useMemo(() => {
+    if (!dataset || !dataset.semesters) return [];
+    const semesterList = Object.keys(dataset.semesters).sort();
+    return semesterList;
+  }, [dataset]);
+
+  const summary = useMemo(() => {
+    if (!dataset) return null;
+    // If semester is selected, filter by that semester
+    if (selectedSemester && dataset.semesters && dataset.semesters[selectedSemester]) {
+      const filteredDataset = {
+        ...dataset,
+        semesters: { [selectedSemester]: dataset.semesters[selectedSemester] }
+      };
+      return getBacklogSummary(filteredDataset, {}, 10);
+    }
+    return getBacklogSummary(dataset, {}, 10);
+  }, [dataset, selectedSemester]);
+
+  const history = useMemo(() => {
+    if (!dataset) return [];
+    let filteredDataset = dataset;
+    if (selectedSemester && dataset.semesters && dataset.semesters[selectedSemester]) {
+      filteredDataset = {
+        ...dataset,
+        semesters: { [selectedSemester]: dataset.semesters[selectedSemester] }
+      };
+    }
+    return getStudentBacklogHistory(filteredDataset);
+  }, [dataset, selectedSemester]);
 
   if (!dataset) {
     return (
@@ -49,6 +111,94 @@ export default function BacklogPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Backlog Analytics</h1>
             <p className="text-sm text-slate-400">Comprehensive overview of student backlogs and failures</p>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="mt-6 pt-6 border-t border-slate-700">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {/* Year Filter */}
+            <div>
+              <label htmlFor="year-filter" className="block text-sm font-medium text-slate-300 mb-2">
+                Year
+              </label>
+              <select
+                id="year-filter"
+                value={selectedYear}
+                onChange={(e) => {
+                  setSelectedYear(e.target.value);
+                  setSelectedBranch(""); // Reset branch when year changes
+                  setSelectedSemester(""); // Reset semester when year changes
+                }}
+                className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+              >
+                <option value="">All Years</option>
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Branch Filter */}
+            <div>
+              <label htmlFor="branch-filter" className="block text-sm font-medium text-slate-300 mb-2">
+                Branch
+              </label>
+              <select
+                id="branch-filter"
+                value={selectedBranch}
+                onChange={(e) => {
+                  setSelectedBranch(e.target.value);
+                  setSelectedSemester(""); // Reset semester when branch changes
+                }}
+                className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+              >
+                <option value="">All Branches</option>
+                {branches.map((branch) => (
+                  <option key={branch} value={branch}>
+                    {branch}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Semester Filter */}
+            <div>
+              <label htmlFor="semester-filter" className="block text-sm font-medium text-slate-300 mb-2">
+                Semester
+              </label>
+              <select
+                id="semester-filter"
+                value={selectedSemester}
+                onChange={(e) => setSelectedSemester(e.target.value)}
+                className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+              >
+                <option value="">All Semesters</option>
+                {semesters.map((sem) => (
+                  <option key={sem} value={sem}>
+                    {sem}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Clear Filters Button */}
+            {(selectedYear || selectedBranch || selectedSemester) && (
+              <div className="flex items-end">
+                <button
+                  onClick={() => {
+                    setSelectedYear("");
+                    setSelectedBranch("");
+                    setSelectedSemester("");
+                  }}
+                  className="w-full px-3 py-2 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600 rounded-lg text-white text-sm font-medium transition"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
